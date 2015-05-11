@@ -45,7 +45,7 @@ abstract class Feed
     /**
     * Collection of all channel elements
     */
-    private $channels      = array();
+    protected $channels      = array();
 
     /**
     * Collection of items as object of \FeedWriter\Item class.
@@ -70,8 +70,8 @@ abstract class Feed
     /**
     * Contains the format of this feed.
     */
-    private $version   = null;
-    
+    protected $version   = null;
+
     /**
     * Constructor
     *
@@ -87,8 +87,8 @@ abstract class Feed
         $this->encoding = 'utf-8';
 
         // Setting default value for essential channel elements
-        $this->channels['title'] = $version . ' Feed';
-        $this->channels['link']  = 'http://www.ajaxray.com/blog';
+        $this->setTitle($version . ' Feed');
+        $this->setLink('http://www.ajaxray.com/blog');
 
         // Add some default XML namespaces
         $this->namespaces['content'] = 'http://purl.org/rss/1.0/modules/content/';
@@ -101,6 +101,7 @@ abstract class Feed
 
         // Tag names to encode in CDATA
         $this->addCDATAEncoding(array('description', 'content:encoded', 'summary'));
+
     }
 
     // Start # public functions ---------------------------------------------
@@ -323,10 +324,19 @@ abstract class Feed
             die('Feed type mismatch: This instance can handle ' . $this->version . ' feeds only, but item with type ' . $feedItem->getVersion() . ' given.');
 
         $this->items[] = $feedItem;
-
         return $this;
     }
-
+    /**
+    * Return the collection of items in this feed
+    *
+    * @access   public
+    * @return   array   All items of this feed.
+    */
+    public function getItems()
+    {
+        return $this->items;
+    }
+ 
     // Wrapper functions -------------------------------------------------------------------
 
     /**
@@ -353,6 +363,13 @@ abstract class Feed
     public function setTitle($title)
     {
         return $this->setChannelElement('title', $title);
+    }
+    public function getTitle()
+    {
+        if (isset($this->channels['title']))
+            return $this->channels['title']['content'];
+         else
+            return "";
     }
 
     /**
@@ -407,6 +424,13 @@ abstract class Feed
 
         return $this;
     }
+    public function getDescription()
+    {
+        if (isset($this->channels['description']))
+            return $this->channels['description']['content'];
+        else
+            return "";
+    }
 
     /**
     * Set the 'link' channel element
@@ -423,6 +447,10 @@ abstract class Feed
             $this->setChannelElement('link', $link);
 
         return $this;
+    }
+    public function getLink()
+    {
+        return $this->channels['link']['content'];
     }
 
     /**
@@ -759,7 +787,7 @@ abstract class Feed
             if ($this->version == Feed::ATOM && strncmp($key, 'atom', 4) == 0) {
                 $key = substr($key, 5);
             }
-            
+
             // The channel element can occur multiple times, when the key 'content' is not in the array.
             if (!isset($value['content'])) {
                 // If this is the case, iterate through the array with the multiple elements.

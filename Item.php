@@ -37,12 +37,12 @@ class Item
     /**
     * Collection of feed item elements
     */
-    private $elements = array();
+    protected $elements = array();
 
     /**
     * Contains the format of this feed.
     */
-    private $version;
+    protected $version;
 
     /**
     * Is used as a suffix when multiple elements have the same name.
